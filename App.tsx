@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { GameState, Player, GameStatus, PieceType, Difficulty, BoardPosition } from './types';
 import { INITIAL_BOARD, BOARD_CONNECTIONS, TOTAL_LEVELS, INITIAL_TRACK_CHARGES } from './constants';
@@ -22,13 +23,18 @@ const App: React.FC = () => {
     const [gameState, setGameState] = useState<GameState>(() => {
         const savedGame = localStorage.getItem('hareAndHoundsGame');
         if (savedGame) {
-            const parsedGame = JSON.parse(savedGame);
-            // Ensure saved games from older versions have new properties
-            return {
-                ...parsedGame,
-                isHareVisible: parsedGame.isHareVisible ?? true,
-                trackCharges: parsedGame.trackCharges ?? INITIAL_TRACK_CHARGES,
-            };
+            try {
+                const parsedGame = JSON.parse(savedGame);
+                // Ensure saved games from older versions have new properties
+                return {
+                    ...parsedGame,
+                    isHareVisible: parsedGame.isHareVisible ?? true,
+                    trackCharges: parsedGame.trackCharges ?? INITIAL_TRACK_CHARGES,
+                };
+            } catch (error) {
+                console.error("Could not parse saved game. Starting a new game.", error);
+                localStorage.removeItem('hareAndHoundsGame');
+            }
         }
         return {
             board: INITIAL_BOARD,
